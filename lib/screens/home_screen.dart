@@ -35,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String _searchQuery = '';
   final _searchCtrl = TextEditingController();
   final Map<String, bool> _completedIds = {};
-  double _fontScale = 1.0;
+  double _fontScale = 1.5;
 
   List<GuideSection> get _currentSections => widget.routes[_routeIdx].sections;
 
