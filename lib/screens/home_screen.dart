@@ -36,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _searchCtrl = TextEditingController();
   final Map<String, bool> _completedIds = {};
   double _fontScale = 1.5;
+  late final Set<String> _sharedIds; // IDs that appear in 2+ routes (by ID only, tips ignored)
 
   List<GuideSection> get _currentSections => widget.routes[_routeIdx].sections;
 
@@ -46,6 +47,24 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    // Compute shared IDs: IDs that appear in more than one route (compare by ID only, tips ignored).
+    final idRouteCount = <String, int>{};
+    for (final route in widget.routes) {
+      final routeIds = <String>{};
+      for (final section in route.sections) {
+        for (final task in section.tasks) {
+          routeIds.add(task.id);
+        }
+      }
+      for (final id in routeIds) {
+        idRouteCount[id] = (idRouteCount[id] ?? 0) + 1;
+      }
+    }
+    _sharedIds = {
+      for (final e in idRouteCount.entries)
+        if (e.value > 1) e.key
+    };
+
     for (final route in widget.routes) {
       for (final section in route.sections) {
         for (final task in section.tasks) {
@@ -382,6 +401,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   section: sec,
                   color: color,
                   isSelected: isSelected,
+                  sharedIds: _sharedIds,
                   onTap: () => setState(() {
                     _selectedIdx = idx;
                     if (_isSearching) {
@@ -407,6 +427,7 @@ class _HomeScreenState extends State<HomeScreen> {
       color: _sectionColor(_selectedIdx),
       storage: widget.storage,
       fontScale: _fontScale,
+      sharedIds: _sharedIds,
       onTaskToggled: _onTaskToggled,
     );
   }
@@ -514,12 +535,14 @@ class _SideSection extends StatelessWidget {
   final Color color;
   final bool isSelected;
   final VoidCallback onTap;
+  final Set<String> sharedIds;
 
   const _SideSection({
     required this.section,
     required this.color,
     required this.isSelected,
     required this.onTap,
+    required this.sharedIds,
   });
 
   @override
@@ -630,6 +653,22 @@ class _SideSection extends StatelessWidget {
                             ),
                           ],
                         ),
+                        Builder(builder: (_) {
+                          final uniqueCount = section.tasks
+                              .where((t) => !sharedIds.contains(t.id))
+                              .length;
+                          if (uniqueCount == 0 || uniqueCount == total) return const SizedBox.shrink();
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(
+                              '$uniqueCount unique · ${total - uniqueCount} shared',
+                              style: const TextStyle(
+                                fontSize: 8,
+                                color: Color(0xFF3A3A3A),
+                              ),
+                            ),
+                          );
+                        }),
                       ],
                     ),
                   ),
@@ -652,6 +691,7 @@ class _TaskPanel extends StatefulWidget {
   final StorageService storage;
   final VoidCallback onTaskToggled;
   final double fontScale;
+  final Set<String> sharedIds;
 
   const _TaskPanel({
     super.key,
@@ -660,6 +700,7 @@ class _TaskPanel extends StatefulWidget {
     required this.storage,
     required this.onTaskToggled,
     required this.fontScale,
+    required this.sharedIds,
   });
 
   @override
@@ -906,6 +947,7 @@ class _TaskPanelState extends State<_TaskPanel> {
               itemBuilder: (ctx, i) => _TaskRow(
                 key: ValueKey(_tasks[i].id),
                 task: _tasks[i],
+                isShared: widget.sharedIds.contains(_tasks[i].id),
                 onToggle: () => _toggle(_tasks[i]),
               ),
             ),
@@ -922,8 +964,9 @@ class _TaskPanelState extends State<_TaskPanel> {
 class _TaskRow extends StatelessWidget {
   final GuideTask task;
   final VoidCallback onToggle;
+  final bool isShared;
 
-  const _TaskRow({super.key, required this.task, required this.onToggle});
+  const _TaskRow({super.key, required this.task, required this.onToggle, this.isShared = false});
 
   @override
   Widget build(BuildContext context) {
@@ -1009,6 +1052,12 @@ class _TaskRow extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
+                  // Shared indicator: tiny link icon when task exists in other routes too (matched by ID, tips ignored)
+                  if (isShared && !done)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: Icon(Icons.link, size: 10, color: Colors.grey[800]),
+                    ),
                   // Points
                   Text(
                     '${task.points}',
