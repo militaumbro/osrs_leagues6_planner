@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'data/guide_data.dart';
 import 'data/guide_data_faux.dart';
 import 'data/guide_data_laef.dart';
+import 'data/guide_data_maz.dart';
 import 'models/task_model.dart';
 import 'services/storage_service.dart';
 import 'theme/app_theme.dart';
@@ -16,6 +17,7 @@ void main() async {
     GuideRoute(id: 'doubleshine', name: 'Doubleshine', sections: buildGuideData()),
     GuideRoute(id: 'laef', name: 'Laef', sections: buildLaefGuideData()),
     GuideRoute(id: 'faux', name: 'Faux', sections: buildFauxGuideData()),
+    GuideRoute(id: 'mahzar', name: 'Mahzar', sections: buildMahzarGuideData()),
   ];
 
   // Restore saved completion state into all route tasks.
