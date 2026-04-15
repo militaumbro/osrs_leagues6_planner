@@ -1,16 +1,34 @@
-# osrs_leagues6_planner
+# OSRS Leagues 6 Planner
 
-A new Flutter project.
+A task tracker for **Old School RuneScape Leagues 6: Demonic Pacts**, built with Flutter and deployed as a web app.
 
-## Getting Started
+## What it does
 
-This project is a starting point for a Flutter application.
+- Browse tasks organized by guide route and section
+- Check off tasks as you complete them — progress is saved in your browser
+- Switch between two community routes (**Doubleshine Day 1** and **Laef's wiki guide**) with a tab bar
+- Completion is **shared between routes**: checking a task in one route marks it in the other if the task appears in both
+- Search tasks or sections by name
+- Adjust font size of the task list independently from the rest of the UI
+- Sort pending tasks to the top within any section
 
-A few resources to get you started if this is your first Flutter project:
+## Routes included
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+| Route | Source |
+|---|---|
+| Doubleshine | Doubleshine's Leagues 6 Day 1 community guide |
+| Laef | [Laef's Demonic Pacts starting guide](https://oldschool.runescape.wiki/w/Guide:Leagues:_Demonic_pacts_starting_guide_by_Laef) on the OSRS Wiki |
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Live site
+
+**https://militaumbro.github.io/osrs_leagues6_planner/**
+
+## Running locally
+
+Requires [Flutter](https://flutter.dev) SDK.
+
+```bash
+flutter pub get
+flutter run -d windows   # desktop
+flutter run -d chrome    # web
+```
